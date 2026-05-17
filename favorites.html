@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vesfly TV — Favorites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    .fav-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+    }
+    .fav-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(245,166,35,0.15); }
+    .fav-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px; height: 26px;
+      background: rgba(255,71,87,0.2);
+      border: 1px solid rgba(255,71,87,0.3);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 5;
+      transition: all 0.2s;
+    }
+    .fav-remove:hover { background: rgba(255,71,87,0.4); }
+    .empty-favs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      gap: 16px;
+      text-align: center;
+    }
+    .empty-favs .big-icon { font-size: 64px; opacity: 0.3; }
+    .empty-favs h2 { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 2px; color: var(--text2); }
+    .empty-favs p { color: var(--muted); font-size: 14px; max-width: 300px; }
+    .empty-favs a {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; background: var(--accent-dim);
+      border: 1px solid rgba(245,166,35,0.2); border-radius: 10px;
+      color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600;
+      transition: all 0.2s; margin-top: 8px;
+    }
+    .empty-favs a:hover { background: rgba(245,166,35,0.2); }
+  </style>
+</head>
+<body>
+
+<div class="page-bg"><div class="grid"></div></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="nav-logo" href="home.html">
+    <div class="nav-logo-icon">📺</div>
+    <div><div class="nav-logo-text">Vesfly <span>TV</span></div></div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="home.html">🏠 Home</a>
+    <a class="nav-link" href="live.html"><span class="dot"></span> Live Now</a>
+    <a class="nav-link" href="channels.html">📡 All Channels</a>
+    <a class="nav-link active" href="favorites.html">⭐ Favorites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar" id="navAvatar">U</div>
+      <span id="navUsername">User</span>
+    </div>
+    <button class="btn-logout" onclick="Auth.logout()">LOGOUT</button>
+  </div>
+</nav>
+
+<div class="page-content">
+  <div class="section-header">
+    <div class="section-title">⭐ <span class="accent">My</span> Favorites</div>
+    <div class="section-badge badge-count" id="favCount">0 saved</div>
+  </div>
+
+  <p style="padding:0 24px;color:var(--text2);font-size:13px;margin-bottom:24px;">
+    Save channels you watch often. Go to <a href="channels.html" style="color:var(--accent);text-decoration:none;">All Channels</a> and click ⭐ on any channel to add it here.
+  </p>
+
+  <div id="favoritesContainer"></div>
+</div>
+
+<!-- Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div style="width:32px;height:32px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;" id="modalIcon">📺</div>
+        <h2 id="modalChannelName">Channel</h2>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:5px;padding:3px 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:#ff4757;">
+          <div style="width:5px;height:5px;border-radius:50%;background:#ff4757;animation:blink 1s infinite;"></div> LIVE
+        </div>
+      </div>
+      <button class="modal-close" onclick="closePlayer()">✕</button>
+    </div>
+    <div class="player-wrap">
+      <div class="player-loading" id="playerLoading">
+        <div class="player-spinner"></div>
+        <p>Connecting to stream...</p>
+      </div>
+      <div class="stream-error" id="streamError">
+        <h3>Stream Unavailable</h3>
+        <p>This stream is currently offline or blocked. Try another channel.</p>
+        <button class="btn-retry" onclick="closePlayer()">← Back to Favorites</button>
+      </div>
+      <video id="videoPlayer" controls style="display:none;"></video>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-channel-info">
+        Country: <strong id="modalCountry">—</strong> &nbsp;·&nbsp;
+        Category: <strong id="modalCat">—</strong>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:#3d5166;letter-spacing:1px;">VESFLY TV</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-credit">Developed by <span>Sayem</span></div>
+
+<script src="auth.js"></script>
+<script src="app.js"></script>
+<script>
+  Auth.requireAuth();
+  const user = Auth.getUser();
+  if (user) {
+    document.getElementById('navUsername').textContent = user.username;
+    document.getElementById('navAvatar').textContent = user.username[0].toUpperCase();
+  }
+
+  loadChannels().then(channels => {
+    const favIds = getFavorites();
+    const favChannels = channels.filter(c => favIds.includes(c.id));
+
+    document.getElementById('favCount').textContent = favChannels.length + ' saved';
+
+    const container = document.getElementById('favoritesContainer');
+
+    if (favChannels.length === 0) {
+      container.innerHTML = `
+        <div class="empty-favs">
+          <div class="big-icon">⭐</div>
+          <h2>No Favorites Yet</h2>
+          <p>Browse channels and star the ones you love to save them here.</p>
+          <a href="channels.html">📡 Browse Channels</a>
+        </div>
+      `;
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'channels-grid';
+    grid.style.padding = '0 24px';
+
+    favChannels.forEach((ch, i) => {
+      const card = createChannelCard(ch, i * 50);
+      card.classList.add('fav-card');
+
+      const removeBtn = document.createElement('div');
+      removeBtn.className = 'fav-remove';
+      removeBtn.title = 'Remove from favorites';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorite(ch.id);
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.9)';
+        setTimeout(() => card.remove(), 300);
+        const remaining = document.querySelectorAll('.fav-card').length - 1;
+        document.getElementById('favCount').textContent = remaining + ' saved';
+        if (remaining === 0) location.reload();
+      });
+      card.appendChild(removeBtn);
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+  });
+</script>
+</body>
+</html>

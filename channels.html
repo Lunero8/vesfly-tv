@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vesfly TV — All Channels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    .channels-grid { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); }
+    .load-more-wrap { display:flex; justify-content:center; padding:32px 24px; }
+    .btn-load-more {
+      padding:12px 36px; background:var(--surface); border:1px solid var(--border2);
+      border-radius:10px; color:var(--text2); font-family:'Outfit',sans-serif;
+      font-size:14px; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-load-more:hover { border-color:var(--accent); color:var(--accent); }
+    .results-count {
+      font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+      color:var(--muted); text-transform:uppercase; padding:0 24px; margin-bottom:16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-bg"><div class="grid"></div></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="nav-logo" href="home.html">
+    <div class="nav-logo-icon">📺</div>
+    <div><div class="nav-logo-text">Vesfly <span>TV</span></div></div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="home.html">🏠 Home</a>
+    <a class="nav-link" href="live.html"><span class="dot"></span> Live Now</a>
+    <a class="nav-link active" href="channels.html">📡 All Channels</a>
+    <a class="nav-link" href="favorites.html">⭐ Favorites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar" id="navAvatar">U</div>
+      <span id="navUsername">User</span>
+    </div>
+    <button class="btn-logout" onclick="Auth.logout()">LOGOUT</button>
+  </div>
+</nav>
+
+<div class="page-content">
+  <div class="section-header">
+    <div class="section-title">📡 <span class="accent">All</span> Channels</div>
+    <div class="section-badge badge-count" id="totalBadge">Loading...</div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search channels..." oninput="applyFilters()"/>
+      <div class="search-icon">🔍</div>
+    </div>
+    <div class="filter-chips" id="countryChips">
+      <div class="chip active" onclick="setCountry('')" data-country="">🌐 All</div>
+      <div class="chip" onclick="setCountry('bd')" data-country="bd">🇧🇩 BD</div>
+      <div class="chip" onclick="setCountry('in')" data-country="in">🇮🇳 India</div>
+      <div class="chip" onclick="setCountry('pk')" data-country="pk">🇵🇰 Pakistan</div>
+      <div class="chip" onclick="setCountry('gb')" data-country="gb">🇬🇧 UK</div>
+      <div class="chip" onclick="setCountry('qa')" data-country="qa">🇶🇦 Qatar</div>
+      <div class="chip" onclick="setCountry('sa')" data-country="sa">🇸🇦 Saudi</div>
+      <div class="chip" onclick="setCountry('ae')" data-country="ae">🇦🇪 UAE</div>
+      <div class="chip" onclick="setCountry('tr')" data-country="tr">🇹🇷 Turkey</div>
+      <div class="chip" onclick="setCountry('fr')" data-country="fr">🇫🇷 France</div>
+      <div class="chip" onclick="setCountry('es')" data-country="es">🇪🇸 Spain</div>
+      <div class="chip" onclick="setCountry('de')" data-country="de">🇩🇪 Germany</div>
+      <div class="chip" onclick="setCountry('it')" data-country="it">🇮🇹 Italy</div>
+    </div>
+  </div>
+
+  <!-- Sports toggle -->
+  <div style="display:flex;gap:10px;padding:0 24px;margin-bottom:20px;flex-wrap:wrap;">
+    <div class="chip active" id="filterAll" onclick="setTypeFilter('all')">All Channels</div>
+    <div class="chip" id="filterSports" onclick="setTypeFilter('sports')">⚽ Sports Only</div>
+    <div class="chip" id="filterLive" onclick="setTypeFilter('live')">🔴 Has Stream</div>
+  </div>
+
+  <div class="results-count" id="resultsCount"></div>
+  <div class="channels-grid" id="channelsGrid"></div>
+  <div class="load-more-wrap">
+    <button class="btn-load-more hidden" id="loadMoreBtn" onclick="loadMore()">Load More Channels</button>
+  </div>
+</div>
+
+<!-- Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div style="width:32px;height:32px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;" id="modalIcon">📺</div>
+        <h2 id="modalChannelName">Channel</h2>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:5px;padding:3px 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:#ff4757;">
+          <div style="width:5px;height:5px;border-radius:50%;background:#ff4757;animation:blink 1s infinite;"></div> LIVE
+        </div>
+      </div>
+      <button class="modal-close" onclick="closePlayer()">✕</button>
+    </div>
+    <div class="player-wrap">
+      <div class="player-loading" id="playerLoading">
+        <div class="player-spinner"></div>
+        <p>Connecting to stream...</p>
+      </div>
+      <div class="stream-error" id="streamError">
+        <h3>Stream Unavailable</h3>
+        <p>This stream is currently offline or blocked by CORS. Try another channel.</p>
+        <button class="btn-retry" onclick="closePlayer()">← Back to Channels</button>
+      </div>
+      <video id="videoPlayer" controls style="display:none;"></video>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-channel-info">
+        Country: <strong id="modalCountry">—</strong> &nbsp;·&nbsp;
+        Category: <strong id="modalCat">—</strong>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:#3d5166;letter-spacing:1px;">VESFLY TV</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-credit">Developed by <span>Sayem</span></div>
+
+<script src="auth.js"></script>
+<script src="app.js"></script>
+<script>
+  Auth.requireAuth();
+  const user = Auth.getUser();
+  if (user) {
+    document.getElementById('navUsername').textContent = user.username;
+    document.getElementById('navAvatar').textContent = user.username[0].toUpperCase();
+  }
+
+  let allChannels = [];
+  let filteredChannels = [];
+  let displayCount = 30;
+  let activeCountry = '';
+  let activeType = 'all';
+
+  // Read URL param for country pre-filter
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCountry = urlParams.get('country') || '';
+  if (urlCountry) {
+    activeCountry = urlCountry;
+    document.querySelectorAll('[data-country]').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.country === urlCountry);
+    });
+  }
+
+  loadChannels().then(channels => {
+    allChannels = channels;
+    document.getElementById('totalBadge').textContent = channels.length + ' channels';
+    applyFilters();
+  });
+
+  function setCountry(code) {
+    activeCountry = code;
+    document.querySelectorAll('[data-country]').forEach(c => {
+      c.classList.toggle('active', c.dataset.country === code);
+    });
+    displayCount = 30;
+    applyFilters();
+  }
+
+  function setTypeFilter(type) {
+    activeType = type;
+    ['All','Sports','Live'].forEach(t => {
+      const el = document.getElementById('filter' + t);
+      if (el) el.classList.toggle('active', type === t.toLowerCase());
+    });
+    displayCount = 30;
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+    filteredChannels = allChannels.filter(ch => {
+      if (activeCountry && (ch.country||'').toLowerCase() !== activeCountry) return false;
+      if (activeType === 'sports' && !isSportsChannel(ch)) return false;
+      if (activeType === 'live' && !ch.streamUrl) return false;
+      if (q && !(ch.name||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    document.getElementById('resultsCount').textContent = filteredChannels.length + ' channels found';
+    renderPage();
+  }
+
+  function renderPage() {
+    const grid = document.getElementById('channelsGrid');
+    const toShow = filteredChannels.slice(0, displayCount);
+    grid.innerHTML = '';
+
+    if (toShow.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><div class="icon">📡</div><p>No channels match your search</p></div>';
+      document.getElementById('loadMoreBtn').classList.add('hidden');
+      return;
+    }
+
+    toShow.forEach((ch, i) => {
+      grid.appendChild(createChannelCard(ch, (i % 30) * 30));
+    });
+
+    const btn = document.getElementById('loadMoreBtn');
+    if (filteredChannels.length > displayCount) {
+      btn.classList.remove('hidden');
+      btn.textContent = `Load More (${filteredChannels.length - displayCount} remaining)`;
+    } else {
+      btn.classList.add('hidden');
+    }
+  }
+
+  function loadMore() {
+    displayCount += 30;
+    renderPage();
+    window.scrollBy({ top: 400, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

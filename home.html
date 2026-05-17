@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vesfly TV — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+<div class="page-bg"><div class="grid"></div></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="nav-logo" href="home.html">
+    <div class="nav-logo-icon">📺</div>
+    <div>
+      <div class="nav-logo-text">Vesfly <span>TV</span></div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link active" href="home.html">🏠 Home</a>
+    <a class="nav-link" href="live.html"><span class="dot"></span> Live Now</a>
+    <a class="nav-link" href="channels.html">📡 All Channels</a>
+    <a class="nav-link" href="favorites.html">⭐ Favorites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar" id="navAvatar">U</div>
+      <span id="navUsername">User</span>
+    </div>
+    <button class="btn-logout" onclick="Auth.logout()">LOGOUT</button>
+  </div>
+</nav>
+
+<!-- Hero Banner -->
+<div style="position:relative;z-index:1;padding-top:64px;">
+  <div style="background:linear-gradient(135deg,#070e18 0%,#0a1628 60%,#060d16 100%);border-bottom:1px solid #162233;padding:40px 24px 36px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,0.08) 0%,transparent 70%);pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-40px;left:10%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(41,121,255,0.05) 0%,transparent 70%);pointer-events:none;"></div>
+    <div style="max-width:600px;position:relative;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:6px;padding:4px 10px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#ff4757;text-transform:uppercase;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#ff4757;animation:blink 1.2s ease-in-out infinite;"></div> Live Now
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#3d5166;text-transform:uppercase;" id="currentTime"></div>
+      </div>
+      <h1 style="font-family:'Bebas Neue',cursive;font-size:52px;letter-spacing:3px;line-height:1;background:linear-gradient(135deg,#e2eaf2 30%,#f5a623 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+        Watch Football<br>Live & Free
+      </h1>
+      <p style="font-size:15px;color:#8fa3b8;margin-top:12px;line-height:1.6;">Stream top football channels from Bangladesh, India, UK, Qatar, UAE and more — all in one place.</p>
+      <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;">
+        <a href="live.html" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#f5a623;color:#000;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 20px rgba(245,166,35,0.3);">⚽ Watch Live Now</a>
+        <a href="channels.html" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:rgba(245,166,35,0.1);color:#f5a623;border:1px solid rgba(245,166,35,0.2);border-radius:10px;font-weight:600;font-size:14px;text-decoration:none;transition:all 0.2s;">📡 Browse Channels</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page Content -->
+<div class="page-content" style="padding-top:24px;">
+
+  <!-- Stats bar -->
+  <div style="display:flex;gap:16px;padding:0 24px;margin-bottom:32px;flex-wrap:wrap;">
+    <div id="stat1" style="flex:1;min-width:140px;background:#0a1520;border:1px solid #162233;border-radius:12px;padding:16px 20px;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#3d5166;text-transform:uppercase;margin-bottom:6px;">Total Channels</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:#f5a623;">...</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#0a1520;border:1px solid #162233;border-radius:12px;padding:16px 20px;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#3d5166;text-transform:uppercase;margin-bottom:6px;">Countries</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:#f5a623;">10+</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#0a1520;border:1px solid #162233;border-radius:12px;padding:16px 20px;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#3d5166;text-transform:uppercase;margin-bottom:6px;">Sports Channels</div>
+      <div id="sportsStat" style="font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:#f5a623;">...</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:#0a1520;border:1px solid #162233;border-radius:12px;padding:16px 20px;">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#3d5166;text-transform:uppercase;margin-bottom:6px;">Status</div>
+      <div style="font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:#00e676;">LIVE</div>
+    </div>
+  </div>
+
+  <!-- Featured Sports Channels -->
+  <div class="section-header">
+    <div class="section-title">⚽ <span class="accent">Featured</span> Sports Channels</div>
+    <div class="section-badge badge-live">● Live</div>
+  </div>
+  <div class="channels-grid" id="featuredGrid">
+    <!-- skeleton -->
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+  </div>
+
+  <!-- Bangladesh channels -->
+  <div class="section-header" style="margin-top:40px;">
+    <div class="section-title">🇧🇩 <span class="accent">Bangladesh</span> Channels</div>
+    <a href="channels.html?country=bd" style="font-size:12px;color:#8fa3b8;text-decoration:none;">View all →</a>
+  </div>
+  <div class="channels-grid" id="bdGrid">
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+  </div>
+
+  <!-- Qatar/beIN channels -->
+  <div class="section-header" style="margin-top:40px;">
+    <div class="section-title">🇶🇦 <span class="accent">beIN Sports</span> & Gulf</div>
+    <a href="channels.html?country=qa" style="font-size:12px;color:#8fa3b8;text-decoration:none;">View all →</a>
+  </div>
+  <div class="channels-grid" id="qaGrid">
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+    <div style="height:160px;border-radius:14px;" class="skeleton"></div>
+  </div>
+
+</div>
+
+<!-- Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div style="width:32px;height:32px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;" id="modalIcon">📺</div>
+        <h2 id="modalChannelName">Channel Name</h2>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:5px;padding:3px 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:#ff4757;">
+          <div style="width:5px;height:5px;border-radius:50%;background:#ff4757;animation:blink 1s infinite;"></div> LIVE
+        </div>
+      </div>
+      <button class="modal-close" onclick="closePlayer()">✕</button>
+    </div>
+    <div class="player-wrap">
+      <div class="player-loading" id="playerLoading">
+        <div class="player-spinner"></div>
+        <p>Connecting to stream...</p>
+      </div>
+      <div class="stream-error" id="streamError">
+        <h3>Stream Unavailable</h3>
+        <p>This stream is currently offline or blocked. Try another channel.</p>
+        <button class="btn-retry" onclick="closePlayer()">← Back to Channels</button>
+      </div>
+      <video id="videoPlayer" controls style="display:none;"></video>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-channel-info">
+        Country: <strong id="modalCountry">—</strong> &nbsp;·&nbsp;
+        Category: <strong id="modalCat">—</strong>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:#3d5166;letter-spacing:1px;">VESFLY TV</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-credit">Developed by <span>Sayem</span></div>
+
+<script src="auth.js"></script>
+<script src="app.js"></script>
+<script>
+  Auth.requireAuth();
+  const user = Auth.getUser();
+  if (user) {
+    document.getElementById('navUsername').textContent = user.username;
+    document.getElementById('navAvatar').textContent = user.username[0].toUpperCase();
+  }
+
+  // Current time
+  function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:true}) + ' · ' + now.toLocaleDateString('en-US', {weekday:'short',month:'short',day:'numeric'});
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+
+  // Load channels
+  loadChannels().then(channels => {
+    document.getElementById('stat1').querySelector('div:last-child').textContent = channels.length;
+    const sports = channels.filter(c => isSportsChannel(c));
+    document.getElementById('sportsStat').textContent = sports.length;
+
+    // Featured — top sports
+    const featured = sports.slice(0, 6);
+    renderGrid('featuredGrid', featured);
+
+    // Bangladesh
+    const bd = channels.filter(c => (c.country||'').toLowerCase() === 'bd').slice(0, 6);
+    renderGrid('bdGrid', bd.length ? bd : channels.slice(0, 4));
+
+    // Qatar/Gulf
+    const gulf = channels.filter(c => ['qa','sa','ae','kw'].includes((c.country||'').toLowerCase())).slice(0, 6);
+    renderGrid('qaGrid', gulf.length ? gulf : sports.slice(6, 10));
+  });
+</script>
+</body>
+</html>

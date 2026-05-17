@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vesfly TV — Live Now</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    .live-hero {
+      background: linear-gradient(135deg, #0a0010 0%, #0d0018 50%, #070005 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 24px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .live-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(255,71,87,0.06) 0%, transparent 65%);
+    }
+    .live-hero-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 44px;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #fff 40%, #ff4757 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+    .pulsing-circle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,71,87,0.1);
+      border: 1px solid rgba(255,71,87,0.25);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #ff4757;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .pulsing-circle .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ff4757;
+      animation: blink 1s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(255,71,87,0.7);
+    }
+    .region-section { margin-top: 36px; }
+    .region-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px;
+      margin-bottom: 16px;
+    }
+    .region-flag { font-size: 28px; }
+    .region-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 20px;
+      letter-spacing: 2px;
+    }
+    .region-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .region-count {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-bg"><div class="grid"></div></div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="nav-logo" href="home.html">
+    <div class="nav-logo-icon">📺</div>
+    <div><div class="nav-logo-text">Vesfly <span>TV</span></div></div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="home.html">🏠 Home</a>
+    <a class="nav-link active" href="live.html"><span class="dot"></span> Live Now</a>
+    <a class="nav-link" href="channels.html">📡 All Channels</a>
+    <a class="nav-link" href="favorites.html">⭐ Favorites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar" id="navAvatar">U</div>
+      <span id="navUsername">User</span>
+    </div>
+    <button class="btn-logout" onclick="Auth.logout()">LOGOUT</button>
+  </div>
+</nav>
+
+<!-- Live Hero -->
+<div style="padding-top:64px;">
+  <div class="live-hero">
+    <div style="position:relative;">
+      <div class="pulsing-circle"><div class="dot"></div> Broadcasting Now</div>
+      <div class="live-hero-title">Live Sports Channels</div>
+      <p style="color:#8fa3b8;font-size:14px;margin-top:8px;">All channels with active streams, organised by region. Click to watch instantly.</p>
+    </div>
+  </div>
+</div>
+
+<div class="page-content" style="padding-top:24px;">
+
+  <!-- Top Sports Section -->
+  <div class="section-header">
+    <div class="section-title">⚽ <span class="accent">Top Football</span> Channels</div>
+    <div class="section-badge badge-live">● Live</div>
+  </div>
+  <div class="channels-grid" id="topSportsGrid"></div>
+
+  <!-- Regional sections -->
+  <div id="regionalSections"></div>
+
+</div>
+
+<!-- Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div style="width:32px;height:32px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;" id="modalIcon">📺</div>
+        <h2 id="modalChannelName">Channel</h2>
+        <div style="display:flex;align-items:center;gap:5px;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.2);border-radius:5px;padding:3px 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:#ff4757;">
+          <div style="width:5px;height:5px;border-radius:50%;background:#ff4757;animation:blink 1s infinite;"></div> LIVE
+        </div>
+      </div>
+      <button class="modal-close" onclick="closePlayer()">✕</button>
+    </div>
+    <div class="player-wrap">
+      <div class="player-loading" id="playerLoading">
+        <div class="player-spinner"></div>
+        <p>Connecting to stream...</p>
+      </div>
+      <div class="stream-error" id="streamError">
+        <h3>Stream Unavailable</h3>
+        <p>This stream is currently offline or blocked. Try another channel.</p>
+        <button class="btn-retry" onclick="closePlayer()">← Back to Channels</button>
+      </div>
+      <video id="videoPlayer" controls style="display:none;"></video>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-channel-info">
+        Country: <strong id="modalCountry">—</strong> &nbsp;·&nbsp;
+        Category: <strong id="modalCat">—</strong>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;color:#3d5166;letter-spacing:1px;">VESFLY TV</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-credit">Developed by <span>Sayem</span></div>
+
+<script src="auth.js"></script>
+<script src="app.js"></script>
+<script>
+  Auth.requireAuth();
+  const user = Auth.getUser();
+  if (user) {
+    document.getElementById('navUsername').textContent = user.username;
+    document.getElementById('navAvatar').textContent = user.username[0].toUpperCase();
+  }
+
+  const REGIONS = [
+    { label: 'Bangladesh', flag: '🇧🇩', codes: ['bd'] },
+    { label: 'India & Pakistan', flag: '🇮🇳', codes: ['in', 'pk'] },
+    { label: 'Gulf & Middle East', flag: '🇶🇦', codes: ['qa', 'sa', 'ae', 'kw', 'jo', 'eg'] },
+    { label: 'United Kingdom', flag: '🇬🇧', codes: ['gb'] },
+    { label: 'Europe', flag: '🌍', codes: ['fr', 'de', 'es', 'it', 'nl', 'pt', 'tr', 'ru'] },
+    { label: 'Americas', flag: '🌎', codes: ['us', 'br', 'ar', 'mx'] },
+  ];
+
+  loadChannels().then(channels => {
+    const liveChannels = channels.filter(c => c.streamUrl);
+
+    // Top sports
+    const topSports = liveChannels.filter(isSportsChannel).slice(0, 8);
+    renderGrid('topSportsGrid', topSports);
+
+    // Regional sections
+    const sectionsEl = document.getElementById('regionalSections');
+    REGIONS.forEach(region => {
+      const regionChs = liveChannels.filter(c => region.codes.includes((c.country||'').toLowerCase()));
+      if (regionChs.length === 0) return;
+
+      const section = document.createElement('div');
+      section.className = 'region-section';
+      section.innerHTML = `
+        <div class="region-header">
+          <div class="region-flag">${region.flag}</div>
+          <div class="region-name">${region.label}</div>
+          <div class="region-line"></div>
+          <div class="region-count">${regionChs.length} channels</div>
+        </div>
+        <div class="channels-grid" id="region-grid-${region.codes[0]}"></div>
+      `;
+      sectionsEl.appendChild(section);
+
+      // Render channels for this region
+      const grid = section.querySelector('.channels-grid');
+      regionChs.slice(0, 8).forEach((ch, i) => {
+        grid.appendChild(createChannelCard(ch, i * 40));
+      });
+    });
+  });
+</script>
+</body>
+</html>

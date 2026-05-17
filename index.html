@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vesfly TV — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #04080c;
+      --surface: #0c1520;
+      --surface2: #101c2a;
+      --border: #162233;
+      --border2: #1e2f42;
+      --accent: #f5a623;
+      --accent-dim: rgba(245,166,35,0.1);
+      --accent-glow: rgba(245,166,35,0.35);
+      --red: #ff4757;
+      --green: #00e676;
+      --text: #e2eaf2;
+      --text2: #8fa3b8;
+      --muted: #3d5166;
+      --card: #0a1520;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Background */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 50% 50%, rgba(245,166,35,0.05) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 85% 15%, rgba(41,121,255,0.05) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 50% at 15% 85%, rgba(245,166,35,0.04) 0%, transparent 55%);
+    }
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      background-image:
+        linear-gradient(rgba(245,166,35,1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,166,35,1) 1px, transparent 1px);
+      background-size: 55px 55px;
+      animation: grid-move 25s linear infinite;
+    }
+    @keyframes grid-move {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(55px,55px); }
+    }
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(245,166,35,0.06);
+    }
+    .bg-circle:nth-child(1) { width: 600px; height: 600px; top: -200px; right: -200px; animation: pulse 7s ease-in-out infinite; }
+    .bg-circle:nth-child(2) { width: 400px; height: 400px; bottom: -100px; left: -100px; animation: pulse 7s ease-in-out 2.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
+
+    /* Scanlines */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.025) 2px, rgba(0,0,0,0.025) 4px);
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Layout */
+    .container {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr 460px;
+      gap: 0;
+      width: 100%;
+      max-width: 920px;
+      min-height: 560px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border2);
+      box-shadow: 0 50px 120px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.04);
+      animation: container-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes container-in {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Left panel */
+    .left-panel {
+      background: linear-gradient(145deg, #070e18 0%, #0a1628 50%, #060d16 100%);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 250px; height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 50px; height: 50px;
+      background: var(--accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 30px var(--accent-glow);
+      animation: icon-pulse 3s ease-in-out infinite alternate;
+    }
+    @keyframes icon-pulse {
+      from { box-shadow: 0 0 20px var(--accent-glow); }
+      to   { box-shadow: 0 0 50px var(--accent-glow), 0 0 80px rgba(245,166,35,0.15); }
+    }
+    .brand-name {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 34px;
+      letter-spacing: 4px;
+      line-height: 1;
+    }
+    .brand-name span { color: var(--accent); }
+    .brand-tagline {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .feature-icon {
+      width: 38px; height: 38px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(245,166,35,0.15);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+    .feature-text h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .feature-text p {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--green);
+      text-transform: uppercase;
+    }
+    .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 1.2s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(0,230,118,0.6);
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* Right panel — form */
+    .right-panel {
+      background: var(--card);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .form-header { margin-bottom: 32px; }
+    .form-header h2 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 30px;
+      letter-spacing: 2px;
+    }
+    .form-header p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+    .error-box {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,71,87,0.08);
+      border: 1px solid rgba(255,71,87,0.2);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13px;
+      color: var(--red);
+      margin-bottom: 20px;
+    }
+    .error-box.show { display: flex; animation: shake 0.4s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+
+    .field { margin-bottom: 18px; }
+    label {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px 12px 40px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-wrap input:focus {
+      border-color: rgba(245,166,35,0.5);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.07);
+    }
+    .input-wrap input::placeholder { color: var(--muted); }
+    .i-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 15px;
+      transition: color 0.2s;
+      padding: 0;
+      line-height: 1;
+    }
+    .pw-toggle:hover { color: var(--accent); }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-login:hover {
+      background: #e8921a;
+      box-shadow: 0 8px 30px rgba(245,166,35,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login.loading { opacity: 0.7; pointer-events: none; }
+    .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success overlay */
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .success-overlay.show { display: flex; animation: fade-in 0.4s ease; }
+    @keyframes fade-in { from{opacity:0} to{opacity:1} }
+    .s-icon { font-size: 60px; animation: bounce 0.6s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes bounce { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .s-title { font-family: 'Bebas Neue', cursive; font-size: 36px; letter-spacing: 4px; color: var(--accent); }
+    .s-sub { font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+    .s-bar {
+      width: 200px; height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .s-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      animation: fill-bar 1.8s ease forwards 0.3s;
+    }
+    @keyframes fill-bar { to { width: 100%; } }
+
+    /* Footer */
+    .footer-credit {
+      position: fixed;
+      bottom: 10px;
+      right: 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      z-index: 50;
+    }
+
+    @media (max-width: 700px) {
+      .container { grid-template-columns: 1fr; max-width: 420px; }
+      .left-panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg">
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+  </div>
+
+  <div class="success-overlay" id="successOverlay">
+    <div class="s-icon">📺</div>
+    <div class="s-title">Welcome Back!</div>
+    <div class="s-sub">Loading Vesfly TV...</div>
+    <div class="s-bar"><div class="s-bar-fill"></div></div>
+  </div>
+
+  <div class="container">
+    <!-- Left branding panel -->
+    <div class="left-panel">
+      <div>
+        <div class="brand-logo">
+          <div class="brand-icon">📺</div>
+          <div>
+            <div class="brand-name">Vesfly <span>TV</span></div>
+            <div class="brand-tagline">Live Football Streaming</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-icon">⚽</div>
+          <div class="feature-text">
+            <h4>Live Football</h4>
+            <p>Premier League, UCL, La Liga & more</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🌏</div>
+          <div class="feature-text">
+            <h4>Global Channels</h4>
+            <p>BD, India, UK, Qatar, UAE & more</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📡</div>
+          <div class="feature-text">
+            <h4>Free & Open</h4>
+            <p>Powered by iptv-org open database</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔴</div>
+          <div class="feature-text">
+            <h4>HD Streams</h4>
+            <p>High-quality live sports coverage</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-status">
+        <div class="live-dot"></div>
+        Channels available now
+      </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="right-panel">
+      <div class="form-header">
+        <h2>Member Login</h2>
+        <p>Enter your credentials to access live streams</p>
+      </div>
+
+      <div class="error-box" id="errorBox">
+        <span>⚠</span>
+        <span id="errorText">Invalid username or password.</span>
+      </div>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <input type="text" id="username" placeholder="Enter your username" autocomplete="off"/>
+          <span class="i-icon">👤</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" placeholder="Enter your password" autocomplete="off"/>
+          <span class="i-icon">🔒</span>
+          <button class="pw-toggle" id="pwToggle" type="button">👁</button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="loginBtn" type="button">
+        <span id="btnText">Sign In to Vesfly TV</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </div>
+  </div>
+
+  <div class="footer-credit">Developed by <span style="color:#f5a623;opacity:0.7">Sayem</span></div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Redirect if already logged in
+    if (Auth.isLoggedIn()) window.location.href = 'home.html';
+
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText  = document.getElementById('btnText');
+    const spinner  = document.getElementById('spinner');
+    const errorBox = document.getElementById('errorBox');
+    const errorTxt = document.getElementById('errorText');
+    const pwToggle = document.getElementById('pwToggle');
+    const pwField  = document.getElementById('password');
+
+    pwToggle.addEventListener('click', () => {
+      const show = pwField.type === 'password';
+      pwField.type = show ? 'text' : 'password';
+      pwToggle.textContent = show ? '🙈' : '👁';
+    });
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    loginBtn.addEventListener('click', doLogin);
+
+    function showError(msg) {
+      errorTxt.textContent = msg;
+      errorBox.classList.remove('show');
+      void errorBox.offsetWidth;
+      errorBox.classList.add('show');
+    }
+
+    function doLogin() {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      if (!u) { showError('Please enter your username.'); return; }
+      if (!p) { showError('Please enter your password.'); return; }
+
+      btnText.style.display = 'none';
+      spinner.style.display = 'block';
+      loginBtn.classList.add('loading');
+      errorBox.classList.remove('show');
+
+      setTimeout(() => {
+        if (Auth.login(u, p)) {
+          document.getElementById('successOverlay').classList.add('show');
+          setTimeout(() => window.location.href = 'home.html', 2200);
+        } else {
+          btnText.style.display = 'block';
+          spinner.style.display = 'none';
+          loginBtn.classList.remove('loading');
+          pwField.value = '';
+          showError('Incorrect username or password. Please try again.');
+        }
+      }, 1200);
+    }
+  </script>
+</body>
+</html>
