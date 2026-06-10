@@ -9,6 +9,10 @@ const VESFLY_USERS = {
   "fahim":    "terenaam",
   "sadi":     "dilsepassword",
   "pranto":   "burger",
+  "hakim":    "engineer",
+  "ne":       "dekh",
+  "oilo":     "kichu-koitam-na",
+  "nee":      "khaaaa",
 };
 
 // Session key
